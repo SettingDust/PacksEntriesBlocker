@@ -1,12 +1,12 @@
-## Feature
- - Only develop fabric but targeting quilt and forge(with Connector) as well with testing modules. 
- - Self updating template with GitHub action
- - SemVer and Conventional Commit for Git stuffs and generating changelog
- - Spotless for code styling
- - Git hook for spotless apply, check and conventional commit validation
- - Version catalog with Kotlin Script in settings.gradle.kts
- - Automate publish with mc-publish action. *Need configure secrets for platform
- - Auto checking dependencies version with dependabot
+Packs Entries Blocker is for avoiding identifier matches the regex from loading from specified pack.  
 
-## Usage
-Use this template and type in the name, description. The GitHub action will provide a repo with correct metadata
+## Use Case
+- Too many mods find their resources from packs will affect the launching time such as GeckoLib, Optifine-like. Profiling it with https://modrinth.com/mod/more-profiling
+- Disable some entries needn't in packs like some CITs
+
+## How to
+1. Modify the config at `config/pack-entries-blocker.json`. Will reload before data/resource packs reloading.
+2. Blocked entries will print to `debug.log` for debugging.
+  - How to access `debug.log`?
+    - https://wiki.vg/Debugging
+    - https://modrinth.com/mod/better-log4j-config and edit it's `better_log4j_config.xml` then
