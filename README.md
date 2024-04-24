@@ -10,3 +10,14 @@ Packs Entries Blocker is for avoiding identifier matches the regex from loading 
   - How to access `debug.log`?
     - https://wiki.vg/Debugging
     - https://modrinth.com/mod/better-log4j-config and edit it's `better_log4j_config.xml` then
+
+## Example
+Below config will block all the tags from the vanilla pack.  
+The key is regex and the value is an array of pack name which can be found in `options.txt`
+```json
+{
+    ".*?:.*?tag.*?": [
+        "vanilla"
+    ]
+}
+```
