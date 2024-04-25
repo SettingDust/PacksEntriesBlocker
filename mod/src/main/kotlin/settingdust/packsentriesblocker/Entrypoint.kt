@@ -1,6 +1,5 @@
 package settingdust.packsentriesblocker
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.resource.ResourcePack
 import net.minecraft.util.Identifier
 import org.apache.logging.log4j.LogManager
@@ -28,6 +27,4 @@ object PackEntriesBlocker {
     }
 }
 
-fun init() {
-    ServerLifecycleEvents.START_DATA_PACK_RELOAD.register { _, _ -> PackEntriesBlocker.reload() }
-}
+fun init() {}
