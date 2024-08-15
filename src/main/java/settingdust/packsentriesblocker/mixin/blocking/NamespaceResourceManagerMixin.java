@@ -1,4 +1,4 @@
-package settingdust.packsentriesblocker.mixin;
+package settingdust.packsentriesblocker.mixin.blocking;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;

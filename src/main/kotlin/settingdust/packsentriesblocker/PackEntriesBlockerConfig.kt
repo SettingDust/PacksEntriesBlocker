@@ -5,8 +5,8 @@ import kotlin.io.path.createFile
 import kotlin.io.path.div
 import kotlin.io.path.inputStream
 import kotlin.io.path.writeText
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -19,12 +19,19 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import net.fabricmc.loader.api.FabricLoader
 
+@Serializable
+data class CommonConfig(
+    val blocked:
+        MutableMap<@Serializable(with = RegexSerializer::class) Regex, MutableSet<String>> =
+        mutableMapOf(),
+    val captureFailed: Boolean = false
+)
+
 object PackEntriesBlockerConfig {
-    var entries = emptyMap<@Contextual Regex, Set<String>>()
-        private set
 
     private val configDir = FabricLoader.getInstance().configDir
     private val commonConfigPath = configDir / "${PackEntriesBlocker.ID}.json"
+    var commonConfig = CommonConfig()
 
     private val json = Json {
         encodeDefaults = true
@@ -49,10 +56,14 @@ object PackEntriesBlockerConfig {
         } catch (_: Exception) {}
 
         try {
-            entries = json.decodeFromStream(commonConfigPath.inputStream())
+            commonConfig = json.decodeFromStream(commonConfigPath.inputStream())
         } catch (_: Exception) {}
 
-        commonConfigPath.writeText(json.encodeToString(entries))
+        save()
+    }
+
+    fun save() {
+        commonConfigPath.writeText(json.encodeToString(commonConfig))
     }
 }
 
