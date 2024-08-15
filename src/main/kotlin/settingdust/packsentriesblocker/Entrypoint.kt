@@ -12,13 +12,13 @@ object PackEntriesBlocker {
     @JvmStatic
     fun blocked(id: Identifier, pack: ResourcePack) =
         PackEntriesBlockerConfig.entries.entries.any {
-            it.key.matches(id.toString()) && it.value.contains(pack.id)
+            it.key.matches(id.toString()) && it.value.contains(pack.name)
         }
 
     @JvmStatic
     fun blocked(namespace: String, prefix: String, pack: ResourcePack) =
         PackEntriesBlockerConfig.entries.entries.any {
-            it.key.matches("$namespace:$prefix") && it.value.contains(pack.id)
+            it.key.matches("$namespace:$prefix") && it.value.contains(pack.name)
         }
 
     @JvmStatic

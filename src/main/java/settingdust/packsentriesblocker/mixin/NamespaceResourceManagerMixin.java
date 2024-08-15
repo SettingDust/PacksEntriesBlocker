@@ -35,7 +35,7 @@ public class NamespaceResourceManagerMixin {
         @Local ResourcePack pack
     ) {
         if (PackEntriesBlocker.blocked(identifier, pack)) {
-            PackEntriesBlocker.LOGGER.debug("Blocked `getResource` of {} from {}", identifier, pack.getId());
+            PackEntriesBlocker.LOGGER.debug("Blocked `getResource` of {} from {}", identifier, pack.getName());
             cir.setReturnValue(Optional.empty());
         }
     }
@@ -52,7 +52,7 @@ public class NamespaceResourceManagerMixin {
         final ResourcePack pack, Identifier identifier
     ) {
         if (PackEntriesBlocker.blocked(identifier, pack)) {
-            PackEntriesBlocker.LOGGER.debug("Blocked `getAllResources` of {} from {}", identifier, pack.getId());
+            PackEntriesBlocker.LOGGER.debug("Blocked `getAllResources` of {} from {}", identifier, pack.getName());
             return null;
         }
         return pack;
@@ -76,7 +76,7 @@ public class NamespaceResourceManagerMixin {
     ) {
         if (PackEntriesBlocker.blocked(namespace, startingPath, pack)) {
             PackEntriesBlocker.LOGGER.debug(
-                "Blocked `findResources` of {}:{} from {}", namespace, startingPath, pack.getId());
+                "Blocked `findResources` of {}:{} from {}", namespace, startingPath, pack.getName());
             return false;
         }
         return true;
@@ -100,7 +100,7 @@ public class NamespaceResourceManagerMixin {
     ) {
         if (PackEntriesBlocker.blocked(namespace, startingPath, pack)) {
             PackEntriesBlocker.LOGGER.debug(
-                "Blocked `findAndAdd` of {}:{} from {}", namespace, startingPath, pack.getId());
+                "Blocked `findAndAdd` of {}:{} from {}", namespace, startingPath, pack.getName());
             return false;
         }
         return true;

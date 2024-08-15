@@ -30,11 +30,11 @@ val author: String by rootProject.properties
 val description: String by rootProject.properties
 
 java {
-    toolchain { languageVersion = JavaLanguageVersion.of(21) }
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
 
     // Still required by IDEs such as Eclipse and Visual Studio Code
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 
     // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build"
     // task if it is present.
@@ -45,6 +45,10 @@ java {
     // aid with development.
     // Uncomment this line to generate them.
     withJavadocJar()
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 loom {
@@ -79,7 +83,7 @@ val metadata =
         "version" to version,
         "description" to description,
         "source" to "https://github.com/SettingDust/PackEntriesBlocker",
-        "minecraft" to "~1.21",
+        "minecraft" to ">=1.20.1",
         "fabric_loader" to ">=0.15",
         "fabric_kotlin" to ">=1.11",
         "modmenu" to "*",
