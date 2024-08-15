@@ -53,13 +53,14 @@ jobs:
             fabric
 
           game-versions: |
-            [1.21,)
+            [1.20.1,1.22)
           game-version-filter: releases
 
           dependencies: |
             fabric-language-kotlin
 
           java: |
+            17
             21
 
       - name: Commit CHANGELOG.md
