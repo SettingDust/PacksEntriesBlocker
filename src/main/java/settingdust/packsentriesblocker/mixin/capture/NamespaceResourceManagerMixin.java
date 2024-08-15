@@ -4,31 +4,34 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.resource.*;
+import net.minecraft.resource.InputSupplier;
+import net.minecraft.resource.NamespaceResourceManager;
+import net.minecraft.resource.ResourcePack;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import settingdust.packsentriesblocker.PackEntriesBlocker;
 
 import java.io.InputStream;
 import java.util.Map;
-import java.util.Optional;
 
 @Mixin(value = NamespaceResourceManager.class)
 public class NamespaceResourceManagerMixin {
+    /**
+     * Almost needn't since it won't take too much time and ModernFix is caching
+     */
     //    @Inject(
     //        method = "getResource",
     //        at = @At(value = "INVOKE", target = "Ljava/util/Optional;empty()Ljava/util/Optional;")
     //    )
-    private void packsentriesblocker$getResource$captureFiltered(
-        final Identifier identifier,
-        final CallbackInfoReturnable<Optional<Resource>> cir
-    ) {
-        PackEntriesBlocker.captureResource(identifier);
-    }
-
+    //    private void packsentriesblocker$getResource$captureFiltered(
+    //        final Identifier identifier,
+    //        final CallbackInfoReturnable<Optional<Resource>> cir
+    //    ) {
+    //        PackEntriesBlocker.captureResource(identifier);
+    //    }
     @ModifyExpressionValue(
         method = "getAllResources",
         at = @At(

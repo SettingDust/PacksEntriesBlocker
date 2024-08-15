@@ -11,33 +11,27 @@ object PackEntriesBlocker {
 
     @JvmStatic
     fun blocked(id: Identifier, pack: ResourcePack) =
-        PackEntriesBlockerConfig.commonConfig.blocked.any {
-            it.key.matches(id.toString()) && it.value.contains(pack.name)
+        synchronized(PackEntriesBlockerConfig.commonConfig.blocked) {
+            PackEntriesBlockerConfig.commonConfig.blocked[pack.name].any {
+                it.matches(id.toString())
+            }
         }
 
     @JvmStatic
     fun blocked(namespace: String, prefix: String, pack: ResourcePack) =
-        PackEntriesBlockerConfig.commonConfig.blocked.any {
-            it.key.matches("$namespace:$prefix") && it.value.contains(pack.name)
+        synchronized(PackEntriesBlockerConfig.commonConfig.blocked) {
+            PackEntriesBlockerConfig.commonConfig.blocked[pack.name].any {
+                it.matches("$namespace:$prefix")
+            }
         }
-
-    /** Almost needn't since it won't take too much time and ModernFix is caching */
-    @JvmStatic
-    fun Identifier.captureResource() {
-        if (PackEntriesBlockerConfig.commonConfig.captureFailed) {
-            PackEntriesBlockerConfig.commonConfig.blocked
-                .getOrPut(Regex(".*")) { mutableSetOf() }
-                .add(toString())
-            PackEntriesBlockerConfig.save()
-        }
-    }
 
     @JvmStatic
     fun Identifier.captureResource(pack: ResourcePack) {
         if (PackEntriesBlockerConfig.commonConfig.captureFailed) {
             PackEntriesBlockerConfig.commonConfig.blocked
-                .getOrPut(Regex(toString())) { mutableSetOf() }
-                .add(pack.name)
+                .asMap()
+                .getOrPut(pack.name) { mutableSetOf() }
+                .add(Regex(toString()))
             PackEntriesBlockerConfig.save()
         }
     }
@@ -46,8 +40,9 @@ object PackEntriesBlocker {
     fun ResourcePack.captureFindResource(namespace: String, prefix: String) {
         if (PackEntriesBlockerConfig.commonConfig.captureFailed) {
             PackEntriesBlockerConfig.commonConfig.blocked
-                .getOrPut(Regex("$namespace:$prefix")) { mutableSetOf() }
-                .add(name)
+                .asMap()
+                .getOrPut(name) { mutableSetOf() }
+                .add(Regex("$namespace:$prefix"))
             PackEntriesBlockerConfig.save()
         }
     }
