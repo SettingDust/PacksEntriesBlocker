@@ -28,10 +28,7 @@ object PackEntriesBlocker {
     @JvmStatic
     fun Identifier.captureResource(pack: ResourcePack) {
         if (PackEntriesBlockerConfig.commonConfig.captureFailed) {
-            PackEntriesBlockerConfig.commonConfig.blocked
-                .asMap()
-                .getOrPut(pack.name) { mutableSetOf() }
-                .add(Regex(toString()))
+            PackEntriesBlockerConfig.commonConfig.blocked.put(pack.name, Regex(toString()))
             PackEntriesBlockerConfig.save()
         }
     }
@@ -39,10 +36,7 @@ object PackEntriesBlocker {
     @JvmStatic
     fun ResourcePack.captureFindResource(namespace: String, prefix: String) {
         if (PackEntriesBlockerConfig.commonConfig.captureFailed) {
-            PackEntriesBlockerConfig.commonConfig.blocked
-                .asMap()
-                .getOrPut(name) { mutableSetOf() }
-                .add(Regex("$namespace:$prefix"))
+            PackEntriesBlockerConfig.commonConfig.blocked.put(name, Regex("$namespace:$prefix"))
             PackEntriesBlockerConfig.save()
         }
     }
