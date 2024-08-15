@@ -1,5 +1,6 @@
 package settingdust.packsentriesblocker
 
+import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimaps
 import com.google.common.collect.SetMultimap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
@@ -9,10 +10,18 @@ import kotlin.io.path.createFile
 import kotlin.io.path.div
 import kotlin.io.path.inputStream
 import kotlin.io.path.writeText
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.SetSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -32,16 +41,15 @@ data class CommonConfig(
     val blocked:
         @Serializable(with = SetMultimapSerializer::class)
         SetMultimap<String, @Serializable(with = RegexSerializer::class) Regex> =
-        Multimaps.synchronizedSetMultimap(
-            Multimaps.newSetMultimap(Object2ObjectOpenHashMap()) { ObjectOpenHashSet() }),
-    val captureFailed: Boolean = false
+        Multimaps.synchronizedSetMultimap(HashMultimap.create()),
+//    val captureFailed: Boolean = false
 )
 
 @Suppress("UnstableApiUsage")
 @OptIn(ExperimentalSerializationApi::class)
 class SetMultimapSerializer<K, V>(
     private val keySerializer: KSerializer<K>,
-    private val valueSerializer: KSerializer<Set<V>>
+    private val valueSerializer: KSerializer<V>
 ) : KSerializer<SetMultimap<K, V>> {
 
     override val descriptor =
@@ -51,12 +59,14 @@ class SetMultimapSerializer<K, V>(
                 keySerializer.descriptor, setSerialDescriptor(valueSerializer.descriptor)))
 
     override fun serialize(encoder: Encoder, value: SetMultimap<K, V>) {
-        MapSerializer(keySerializer, valueSerializer).serialize(encoder, Multimaps.asMap(value))
+        MapSerializer(keySerializer, SetSerializer(valueSerializer))
+            .serialize(encoder, Multimaps.asMap(value))
     }
 
     override fun deserialize(decoder: Decoder): SetMultimap<K, V> {
         val map = Multimaps.newSetMultimap<K, V>(Object2ObjectOpenHashMap()) { ObjectOpenHashSet() }
-        for (entry in MapSerializer(keySerializer, valueSerializer).deserialize(decoder)) {
+        for (entry in
+            MapSerializer(keySerializer, SetSerializer(valueSerializer)).deserialize(decoder)) {
             map.putAll(entry.key, entry.value)
         }
         return map
@@ -69,6 +79,9 @@ object PackEntriesBlockerConfig {
     private val commonConfigPath = configDir / "${PackEntriesBlocker.ID}.json"
     var commonConfig = CommonConfig()
 
+    val saveChannel = Channel<Unit>(1)
+    private @OptIn(FlowPreview::class) val saveFlow = saveChannel.consumeAsFlow().debounce(500)
+
     private val json = Json {
         encodeDefaults = true
         isLenient = true
@@ -80,6 +93,7 @@ object PackEntriesBlockerConfig {
 
     init {
         load()
+        GlobalScope.launch(Dispatchers.IO) { saveFlow.collect { save() } }
     }
 
     fun load() {
@@ -95,7 +109,7 @@ object PackEntriesBlockerConfig {
             commonConfig = json.decodeFromStream(commonConfigPath.inputStream())
         } catch (_: Exception) {}
 
-        save()
+        saveChannel.trySend(Unit)
     }
 
     fun save() {
