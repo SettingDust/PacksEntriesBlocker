@@ -58,4 +58,6 @@ object PackEntriesBlocker {
     }
 }
 
-fun init() {}
+fun init() {
+    PackEntriesBlocker.reload()
+}
